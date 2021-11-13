@@ -7,21 +7,16 @@ if(strlen($_SESSION['alogin'])==0)
 header('location:index.php');
 }
 else{
-	$imgid=intval($_GET['imgid']);
-if(isset($_POST['submit']))
+if($_POST['submit']=="Update")
 {
-
-$pimage=$_FILES["packageimage"]["name"];
-move_uploaded_file($_FILES["packageimage"]["tmp_name"],"pacakgeimages/".$_FILES["packageimage"]["name"]);
-$sql="update TblTourPackages set PackageImage=:pimage where PackageId=:imgid";
+	$pagetype=$_GET['type'];
+	$pagedetails=$_POST['pgedetails'];
+$sql = "UPDATE tblpages SET detail=:pagedetails WHERE type=:pagetype";
 $query = $dbh->prepare($sql);
-
-$query->bindParam(':imgid',$imgid,PDO::PARAM_STR);
-$query->bindParam(':pimage',$pimage,PDO::PARAM_STR);
-$query->execute();
-$msg="Package Created Successfully";
-
-
+$query -> bindParam(':pagetype',$pagetype, PDO::PARAM_STR);
+$query-> bindParam(':pagedetails',$pagedetails, PDO::PARAM_STR);
+$query -> execute();
+$msg="Page data updated  successfully";
 
 }
 
@@ -62,6 +57,43 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
 }
 		</style>
 
+<script type="text/JavaScript">
+<!--
+function MM_findObj(n, d) { //v4.01
+  var p,i,x;  if(!d) d=document; if((p=n.indexOf("?"))>0&&parent.frames.length) {
+    d=parent.frames[n.substring(p+1)].document; n=n.substring(0,p);}
+  if(!(x=d[n])&&d.all) x=d.all[n]; for (i=0;!x&&i<d.forms.length;i++) x=d.forms[i][n];
+  for(i=0;!x&&d.layers&&i<d.layers.length;i++) x=MM_findObj(n,d.layers[i].document);
+  if(!x && d.getElementById) x=d.getElementById(n); return x;
+}
+
+function MM_validateForm() { //v4.0
+  var i,p,q,nm,test,num,min,max,errors='',args=MM_validateForm.arguments;
+  for (i=0; i<(args.length-2); i+=3) { test=args[i+2]; val=MM_findObj(args[i]);
+    if (val) { nm=val.name; if ((val=val.value)!="") {
+      if (test.indexOf('isEmail')!=-1) { p=val.indexOf('@');
+        if (p<1 || p==(val.length-1)) errors+='- '+nm+' must contain an e-mail address.\n';
+      } else if (test!='R') { num = parseFloat(val);
+        if (isNaN(val)) errors+='- '+nm+' must contain a number.\n';
+        if (test.indexOf('inRange') != -1) { p=test.indexOf(':');
+          min=test.substring(8,p); max=test.substring(p+1);
+          if (num<min || max<num) errors+='- '+nm+' must contain a number between '+min+' and '+max+'.\n';
+    } } } else if (test.charAt(0) == 'R') errors += '- '+nm+' is required.\n'; }
+  } if (errors) alert('The following error(s) occurred:\n'+errors);
+  document.MM_returnValue = (errors == '');
+}
+
+function MM_jumpMenu(targ,selObj,restore){ //v3.0
+  eval(targ+".location='"+selObj.options[selObj.selectedIndex].value+"'");
+  if (restore) selObj.selectedIndex=0;
+}
+//-->
+</script>
+<script type="text/javascript" src="nicEdit.js"></script>
+<script type="text/javascript">
+	bkLib.onDomLoaded(function() { nicEditors.allTextAreas() });
+</script>		
+
 </head> 
 <body>
    <div class="page-container">
@@ -75,50 +107,118 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
 				</div>
 <!--heder end here-->
 	<ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="index.html">Home</a><i class="fa fa-angle-right"></i>Update Package Image </li>
+                <li class="breadcrumb-item"><a href="index.html">Home</a><i class="fa fa-angle-right"></i>Update Page Data </li>
             </ol>
 		<!--grid-->
  	<div class="grid-form">
  
 <!---->
   <div class="grid-form1">
-  	       <h3>Update Package Image </h3>
+  	       <h3>Update Page Data</h3>
   	        	  <?php if($error){?><div class="errorWrap"><strong>ERROR</strong>:<?php echo htmlentities($error); ?> </div><?php } 
 				else if($msg){?><div class="succWrap"><strong>SUCCESS</strong>:<?php echo htmlentities($msg); ?> </div><?php }?>
   	         <div class="tab-content">
 						<div class="tab-pane active" id="horizontal-form">
 							<form class="form-horizontal" name="package" method="post" enctype="multipart/form-data">
-						<?php 
-$imgid=intval($_GET['imgid']);
-$sql = "SELECT PackageImage from TblTourPackages where PackageId=:imgid";
+								<div class="form-group">
+									<label for="focusedinput" class="col-sm-2 control-label">Select page</label>
+									<div class="col-sm-8">
+									   <select name="menu1" onChange="MM_jumpMenu('parent',this,0)">
+                  <option value="" selected="selected" class="form-control">***Select One***</option>
+                  
+                  <option value="manage-pages.php?type=aboutus">aboutus</option> 
+                  <option value="manage-pages.php?type=contact">Contact us</option>
+                </select>
+									</div>
+								</div>
+<div class="form-group">
+									<label for="focusedinput" class="col-sm-2 control-label">Selected Page</label>
+									<div class="col-sm-8">
+									<?php
+			
+			switch($_GET['type'])
+			{
+				
+				
+				case "aboutus" :
+									echo "About US";
+									break;
+				case "software" :
+									echo "Offers";
+									break;	
+				case "aspnet" :
+									echo "Vission And MISSION";
+									break;		
+				case "objectives" :
+									echo "Objectives";
+									break;						
+				case "disclaimer" :
+									echo "Disclaimer";
+									break;
+				case "vbnet" :
+									echo "Partner With Us";
+									break;
+				case "candc" :
+									echo "Super Brand";
+									break;
+				case "contact" :
+									echo "Contact Us";
+									break;
+				
+				
+							
+											
+				default :
+								echo "";
+								break;
+			
+			}
+			
+			
+			
+			
+			
+			?>
+									</div>
+								</div>
+
+
+
+	
+
+
+<div class="form-group">
+									<label for="focusedinput" class="col-sm-2 control-label">Package Details</label>
+									<div class="col-sm-8">
+
+
+										<textarea class="form-control" rows="5" cols="50" name="pgedetails" id="pgedetails" placeholder="Package Details" required>
+										<?php 
+$pagetype=$_GET['type'];
+$sql = "SELECT detail from tblpages where type=:pagetype";
 $query = $dbh -> prepare($sql);
-$query -> bindParam(':imgid', $imgid, PDO::PARAM_STR);
+$query->bindParam(':pagetype',$pagetype,PDO::PARAM_STR);
 $query->execute();
 $results=$query->fetchAll(PDO::FETCH_OBJ);
 $cnt=1;
 if($query->rowCount() > 0)
 {
 foreach($results as $result)
-{	?>	
-<div class="form-group">
-<label for="focusedinput" class="col-sm-2 control-label"> Package Image </label>
-<div class="col-sm-8">
-<img src="pacakgeimages/<?php echo htmlentities($result->PackageImage);?>" width="200">
-</div>
-</div>
-																					
-<div class="form-group">
-									<label for="focusedinput" class="col-sm-2 control-label">New Image</label>
-									<div class="col-sm-8">
-										<input type="file" name="packageimage" id="packageimage" required>
+{		
+echo htmlentities($result->detail);
+}}
+?>
+
+										</textarea> 
 									</div>
-								</div>	
-								<?php }} ?>
+								</div>															
+
 
 								<div class="row">
 			<div class="col-sm-8 col-sm-offset-2">
-				<button type="submit" name="submit" class="btn-primary btn">Update</button>
+				<button type="submit" name="submit" value="Update" id="submit" class="btn-primary btn">Update</button>
 
+		
 			</div>
 		</div>
 						

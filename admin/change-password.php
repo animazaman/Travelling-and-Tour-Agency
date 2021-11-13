@@ -7,34 +7,41 @@ if(strlen($_SESSION['alogin'])==0)
 header('location:index.php');
 }
 else{
-	$imgid=intval($_GET['imgid']);
+// Code for change password	
 if(isset($_POST['submit']))
+	{
+$password=md5($_POST['password']);
+$newpassword=md5($_POST['newpassword']);
+$username=$_SESSION['alogin'];
+	$sql ="SELECT Password FROM admin WHERE UserName=:username and Password=:password";
+$query= $dbh -> prepare($sql);
+$query-> bindParam(':username', $username, PDO::PARAM_STR);
+$query-> bindParam(':password', $password, PDO::PARAM_STR);
+$query-> execute();
+$results = $query -> fetchAll(PDO::FETCH_OBJ);
+if($query -> rowCount() > 0)
 {
-
-$pimage=$_FILES["packageimage"]["name"];
-move_uploaded_file($_FILES["packageimage"]["tmp_name"],"pacakgeimages/".$_FILES["packageimage"]["name"]);
-$sql="update TblTourPackages set PackageImage=:pimage where PackageId=:imgid";
-$query = $dbh->prepare($sql);
-
-$query->bindParam(':imgid',$imgid,PDO::PARAM_STR);
-$query->bindParam(':pimage',$pimage,PDO::PARAM_STR);
-$query->execute();
-$msg="Package Created Successfully";
-
-
-
+$con="update admin set Password=:newpassword where UserName=:username";
+$chngpwd1 = $dbh->prepare($con);
+$chngpwd1-> bindParam(':username', $username, PDO::PARAM_STR);
+$chngpwd1-> bindParam(':newpassword', $newpassword, PDO::PARAM_STR);
+$chngpwd1->execute();
+$msg="Your Password succesfully changed";
 }
+else {
+$error="Your current password is wrong";	
+}
+}
+?>
 
-	?>
 <!DOCTYPE HTML>
 <html>
 <head>
-<title>Admin Package Creation</title>
+<title>Admin Change Password</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="keywords" content="Pooled Responsive web template, Bootstrap Web Templates, Flat Web Templates, Android Compatible web template, 
-Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, SonyEricsson, Motorola web design" />
 <script type="application/x-javascript"> addEventListener("load", function() { setTimeout(hideURLbar, 0); }, false); function hideURLbar(){ window.scrollTo(0,1); } </script>
+
 <link href="css/bootstrap.min.css" rel='stylesheet' type='text/css' />
 <link href="css/style.css" rel='stylesheet' type='text/css' />
 <link rel="stylesheet" href="css/morris.css" type="text/css"/>
@@ -43,6 +50,18 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
 <link href='//fonts.googleapis.com/css?family=Roboto:700,500,300,100italic,100,400' rel='stylesheet' type='text/css'/>
 <link href='//fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
 <link rel="stylesheet" href="css/icon-font.min.css" type='text/css' />
+<script type="text/javascript">
+function valid()
+{
+if(document.chngpwd.newpassword.value!= document.chngpwd.confirmpassword.value)
+{
+alert("New Password and Confirm Password Field do not match  !!");
+document.chngpwd.confirmpassword.focus();
+return false;
+}
+return true;
+}
+</script>
   <style>
 		.errorWrap {
     padding: 10px;
@@ -75,71 +94,66 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
 				</div>
 <!--heder end here-->
 	<ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="index.html">Home</a><i class="fa fa-angle-right"></i>Update Package Image </li>
+                <li class="breadcrumb-item"><a href="dashboard.php">Home</a><i class="fa fa-angle-right"></i>Profile <i class="fa fa-angle-right"></i> Change Password</li>
             </ol>
 		<!--grid-->
  	<div class="grid-form">
- 
-<!---->
+
   <div class="grid-form1">
-  	       <h3>Update Package Image </h3>
+
   	        	  <?php if($error){?><div class="errorWrap"><strong>ERROR</strong>:<?php echo htmlentities($error); ?> </div><?php } 
 				else if($msg){?><div class="succWrap"><strong>SUCCESS</strong>:<?php echo htmlentities($msg); ?> </div><?php }?>
-  	         <div class="tab-content">
-						<div class="tab-pane active" id="horizontal-form">
-							<form class="form-horizontal" name="package" method="post" enctype="multipart/form-data">
-						<?php 
-$imgid=intval($_GET['imgid']);
-$sql = "SELECT PackageImage from TblTourPackages where PackageId=:imgid";
-$query = $dbh -> prepare($sql);
-$query -> bindParam(':imgid', $imgid, PDO::PARAM_STR);
-$query->execute();
-$results=$query->fetchAll(PDO::FETCH_OBJ);
-$cnt=1;
-if($query->rowCount() > 0)
-{
-foreach($results as $result)
-{	?>	
-<div class="form-group">
-<label for="focusedinput" class="col-sm-2 control-label"> Package Image </label>
-<div class="col-sm-8">
-<img src="pacakgeimages/<?php echo htmlentities($result->PackageImage);?>" width="200">
-</div>
-</div>
-																					
-<div class="form-group">
-									<label for="focusedinput" class="col-sm-2 control-label">New Image</label>
-									<div class="col-sm-8">
-										<input type="file" name="packageimage" id="packageimage" required>
-									</div>
-								</div>	
-								<?php }} ?>
+				
+  <div class="panel-body">
+					<form  name="chngpwd" method="post" class="form-horizontal" onSubmit="return valid();">
 
-								<div class="row">
-			<div class="col-sm-8 col-sm-offset-2">
-				<button type="submit" name="submit" class="btn-primary btn">Update</button>
+						<div class="form-group">
+							<label class="col-md-2 control-label">Current Password</label>
+							<div class="col-md-8">
+								<div class="input-group">
+									<span class="input-group-addon">
+										<i class="fa fa-key"></i>
+									</span>
+									<input type="password" name="password" class="form-control1" id="exampleInputPassword1" placeholder="Current Password" required="">
+								</div>
+							</div>
+						</div>
 
+	<div class="form-group">
+							<label class="col-md-2 control-label">New Password</label>
+							<div class="col-md-8">
+								<div class="input-group">
+									<span class="input-group-addon">
+										<i class="fa fa-key"></i>
+									</span>
+									<input type="password" class="form-control1" name="newpassword" id="newpassword" placeholder="New Password" required="">
+								</div>
+							</div>
+						</div>
+
+	<div class="form-group">
+							<label class="col-md-2 control-label">Confirm Password</label>
+							<div class="col-md-8">
+								<div class="input-group">
+									<span class="input-group-addon">
+										<i class="fa fa-key"></i>
+									</span>
+									<input type="password" class="form-control1" name="confirmpassword" id="confirmpassword" placeholder="Confrim Password" required="">
+								</div>
+							</div>
+						</div>
+
+						<div class="col-sm-8 col-sm-offset-2">
+				<button type="submit" name="submit" class="btn-primary btn">Submit</button>
+				<button type="reset" class="btn-inverse btn">Reset</button>
 			</div>
 		</div>
-						
-					
-						
-						
-						
-					</div>
-					
+			
 					</form>
-
-     
-      
-
-      
-      <div class="panel-footer">
-		
-	 </div>
-    </form>
-  </div>
- 	</div>
+	</div>
+</div>
+</div>
+</div>
  	<!--//grid-->
 
 <!-- script-for sticky-nav -->
@@ -170,7 +184,7 @@ foreach($results as $result)
 </div>
   <!--//content-inner-->
 		<!--/sidebar-menu-->
-					<?php include('includes/sidebarmenu.php');?>
+				<?php include('includes/sidebarmenu.php');?>
 							  <div class="clearfix"></div>		
 							</div>
 							<script>
@@ -193,13 +207,10 @@ foreach($results as $result)
 											toggle = !toggle;
 										});
 							</script>
-<!--js -->
 <script src="js/jquery.nicescroll.js"></script>
 <script src="js/scripts.js"></script>
-<!-- Bootstrap Core JavaScript -->
-   <script src="js/bootstrap.min.js"></script>
-   <!-- /Bootstrap Core JavaScript -->	   
-
+<script src="js/bootstrap.min.js"></script>
+   
 </body>
 </html>
 <?php } ?>
